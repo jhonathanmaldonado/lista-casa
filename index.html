@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nossa Lista</title>
+<meta name="theme-color" content="#2E7D5B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Nossa Lista">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F6F2; --card:#FFFFFF; --ink:#23201B; --ink-soft:#6B665C;
+    --line:#E7E4DC; --green:#2E7D5B; --green-deep:#256449; --green-tint:#E7F1E4;
+    --persimmon:#E0703A; --danger:#C0432F;
+    --shadow:0 1px 2px rgba(35,32,27,.04), 0 6px 18px rgba(35,32,27,.06);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Hanken Grotesk',system-ui,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  body{min-height:100dvh}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input,select{font-family:inherit;font-size:16px;color:var(--ink)}
+  h1,h2,h3,.display{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.01em}
+
+  .wrap{max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+  .hidden{display:none!important}
+
+  /* ===== LOGIN ===== */
+  #telaLogin{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 22px;gap:22px}
+  .brand{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+  .brand .mark{width:64px;height:64px;border-radius:18px;background:var(--green);display:grid;place-items:center;box-shadow:var(--shadow)}
+  .brand .mark svg{width:34px;height:34px}
+  .brand h1{font-size:30px;font-weight:700}
+  .brand p{color:var(--ink-soft);font-size:15px;max-width:24ch}
+  .login-card{width:100%;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column;gap:12px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:13px;font-weight:600;color:var(--ink-soft)}
+  .field input{padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;transition:border-color .15s}
+  .field input:focus{outline:none;border-color:var(--green)}
+  .btn-primary{background:var(--green);color:#fff;font-weight:700;font-size:16px;padding:14px;border-radius:12px;transition:background .15s,transform .05s}
+  .btn-primary:active{transform:scale(.99)}
+  .btn-primary:disabled{opacity:.6;cursor:default}
+  .login-erro{color:var(--danger);font-size:14px;font-weight:600;min-height:18px;text-align:center}
+
+  /* ===== APP HEADER ===== */
+  header{position:sticky;top:0;z-index:20;background:rgba(247,246,242,.86);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line);padding:max(10px,env(safe-area-inset-top)) 18px 10px}
+  .head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .head-row .title{display:flex;align-items:center;gap:10px}
+  .head-row .mark{width:34px;height:34px;border-radius:10px;background:var(--green);display:grid;place-items:center}
+  .head-row .mark svg{width:19px;height:19px}
+  .head-row h1{font-size:20px;font-weight:700;line-height:1}
+  .who{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .btn-sair{font-size:13px;font-weight:600;color:var(--ink-soft);padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:#fff}
+
+  /* ===== TABS ===== */
+  .tabs{display:flex;gap:4px;background:#ECEAE3;border-radius:12px;padding:4px;margin-top:12px}
+  .tabs button{flex:1;padding:9px;border-radius:9px;font-weight:600;font-size:14px;color:var(--ink-soft);transition:.15s}
+  .tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .tabs button .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;font-size:11px;line-height:18px;border-radius:9px;background:var(--green);color:#fff;font-weight:700}
+
+  main{flex:1;padding:14px 16px 28px}
+
+  /* ===== ADD CARD ===== */
+  .add{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;margin-bottom:16px}
+  .add .nome{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+  .add .nome:focus{outline:none;border-color:var(--green)}
+  .add .linha2{display:flex;gap:8px;margin-top:8px}
+  .add select,.add .qtd{padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;min-width:0}
+  .add select{flex:1.4;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B665C' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+  .add .qtd{flex:1;width:0}
+  .add .qtd:focus,.add select:focus{outline:none;border-color:var(--green)}
+  .add .btn-add{background:var(--green);color:#fff;border-radius:12px;width:48px;display:grid;place-items:center;flex:0 0 48px}
+  .add .btn-add svg{width:22px;height:22px}
+  .add .btn-add:active{background:var(--green-deep)}
+
+  /* ===== CATEGORY GROUPS ===== */
+  .cat{margin-bottom:18px}
+  .cat-head{display:flex;align-items:center;gap:8px;margin:0 4px 8px}
+  .cat-head .chip{font-size:18px;width:30px;height:30px;border-radius:9px;display:grid;place-items:center}
+  .cat-head h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .cat-head .n{font-size:12px;color:var(--ink-soft);font-weight:600}
+
+  .item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:7px;box-shadow:0 1px 2px rgba(35,32,27,.03)}
+  .check{flex:0 0 24px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;transition:.15s}
+  .check svg{width:14px;height:14px;opacity:0;transform:scale(.5);transition:.15s}
+  .item.done .check{background:var(--green);border-color:var(--green)}
+  .item.done .check svg{opacity:1;transform:scale(1)}
+  .item .body{flex:1;min-width:0;text-align:left}
+  .item .nome{font-weight:600;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .meta{font-size:12.5px;color:var(--ink-soft)}
+  .item.done .nome{text-decoration:line-through;color:var(--ink-soft)}
+  .item .edit{flex:0 0 auto;color:var(--ink-soft);padding:6px;border-radius:8px}
+  .item .edit svg{width:18px;height:18px;display:block}
+
+  /* ===== CART ===== */
+  .cart{margin-top:6px;border-top:1px dashed var(--line);padding-top:16px}
+  .btn-finalizar{width:100%;background:var(--green);color:#fff;font-weight:700;font-size:16px;padding:15px;border-radius:14px;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow)}
+  .btn-finalizar:active{background:var(--green-deep)}
+
+  /* ===== EMPTY ===== */
+  .empty{text-align:center;color:var(--ink-soft);padding:54px 20px}
+  .empty .big{font-size:42px;margin-bottom:10px}
+  .empty h3{font-family:'Bricolage Grotesque';font-size:19px;color:var(--ink);margin-bottom:6px}
+  .empty p{font-size:14.5px;max-width:30ch;margin:0 auto}
+
+  /* ===== HISTÓRICO ===== */
+  .trip{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 15px;margin-bottom:12px}
+  .trip-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;cursor:pointer}
+  .trip-head .data{font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;text-transform:capitalize}
+  .trip-head .qt{font-size:12.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap}
+  .trip .by{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .trip ul{list-style:none;margin-top:11px;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+  .trip li{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+  .trip li .q{color:var(--ink-soft)}
+
+  /* ===== SHEET (edit) ===== */
+  .overlay{position:fixed;inset:0;background:rgba(35,32,27,.4);z-index:40;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+  .overlay.open{opacity:1;pointer-events:auto}
+  .sheet{width:100%;max-width:520px;background:var(--paper);border-radius:20px 20px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .24s cubic-bezier(.22,.9,.3,1)}
+  .overlay.open .sheet{transform:translateY(0)}
+  .sheet h3{font-size:18px;margin-bottom:14px}
+  .sheet .field{margin-bottom:12px}
+  .sheet input,.sheet select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+  .sheet select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B665C' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+  .sheet input:focus,.sheet select:focus{outline:none;border-color:var(--green)}
+  .sheet .acoes{display:flex;gap:10px;margin-top:8px}
+  .sheet .salvar{flex:1;background:var(--green);color:#fff;font-weight:700;padding:14px;border-radius:12px}
+  .sheet .excluir{flex:0 0 auto;color:var(--danger);font-weight:600;padding:14px 16px;border-radius:12px;border:1.5px solid #F0D9D3}
+
+  /* ===== TOAST ===== */
+  #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));translate:-50% 20px;background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:11px 18px;border-radius:999px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s,translate .2s}
+  #toast.show{opacity:1;translate:-50% 0}
+
+  .loading{display:grid;place-items:center;height:100dvh;color:var(--ink-soft)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="boot" class="loading">Carregando…</div>
+
+<div class="wrap hidden" id="app">
+
+  <!-- LOGIN -->
+  <section id="telaLogin" class="hidden">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M20 22h26l-3 18a3 3 0 0 1-3 2.6H24.5a3 3 0 0 1-3-2.6L18 16h-4" stroke="#FBF7F0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25" cy="49" r="2.6" fill="#FBF7F0"/><circle cx="39" cy="49" r="2.6" fill="#FBF7F0"/></svg>
+      </div>
+      <h1>Nossa Lista</h1>
+      <p>A lista de compras da casa, sempre igual nos dois celulares.</p>
+    </div>
+    <form class="login-card" id="formLogin">
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" autocomplete="username" inputmode="email" required>
+      </div>
+      <div class="field">
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="login-erro" id="loginErro"></div>
+      <button type="submit" class="btn-primary" id="btnEntrar">Entrar</button>
+    </form>
+  </section>
+
+  <!-- APP -->
+  <div id="telaApp" class="hidden" style="display:flex;flex-direction:column;flex:1">
+    <header>
+      <div class="head-row">
+        <div class="title">
+          <div class="mark"><svg viewBox="0 0 64 64" fill="none"><path d="M20 22h26l-3 18a3 3 0 0 1-3 2.6H24.5a3 3 0 0 1-3-2.6L18 16h-4" stroke="#FBF7F0" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25" cy="49" r="2.6" fill="#FBF7F0"/><circle cx="39" cy="49" r="2.6" fill="#FBF7F0"/></svg></div>
+          <div>
+            <h1>Nossa Lista</h1>
+            <div class="who" id="who"></div>
+          </div>
+        </div>
+        <button class="btn-sair" id="btnSair">Sair</button>
+      </div>
+      <div class="tabs">
+        <button id="tabLista" class="on" onclick="trocarAba('lista')">Lista<span class="badge hidden" id="badgeLista">0</span></button>
+        <button id="tabHist" onclick="trocarAba('hist')">Histórico</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- ABA LISTA -->
+      <div id="abaLista">
+        <div class="add">
+          <input class="nome" id="novoNome" placeholder="O que falta? Ex: Leite" enterkeyhint="done">
+          <div class="linha2">
+            <select id="novoCat"></select>
+            <input class="qtd" id="novoQtd" placeholder="Qtd (opcional)" enterkeyhint="done">
+            <button class="btn-add" id="btnAdd" aria-label="Adicionar item">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="listaWrap"></div>
+      </div>
+
+      <!-- ABA HISTÓRICO -->
+      <div id="abaHist" class="hidden">
+        <div id="histWrap"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- SHEET DE EDIÇÃO -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)fecharSheet()">
+  <div class="sheet" id="sheet">
+    <h3>Editar item</h3>
+    <div class="field"><input id="edNome" placeholder="Nome"></div>
+    <div class="field"><input id="edQtd" placeholder="Quantidade (opcional)"></div>
+    <div class="field"><select id="edCat"></select></div>
+    <div class="acoes">
+      <button class="excluir" id="edExcluir">Excluir</button>
+      <button class="salvar" id="edSalvar">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut }
+  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
+  onSnapshot, query, orderBy, serverTimestamp, writeBatch }
+  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCqtJgp4mriCIIEcIFav9JceXzU_nEWd9c",
+  authDomain: "lista-casa-393e3.firebaseapp.com",
+  projectId: "lista-casa-393e3",
+  storageBucket: "lista-casa-393e3.firebasestorage.app",
+  messagingSenderId: "746987103713",
+  appId: "1:746987103713:web:27d4298bfaab2fca889ea0"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ---------- Categorias ---------- */
+const CATEGORIAS = [
+  { id:'hortifruti', nome:'Hortifruti',       emoji:'🥬', tint:'#E7F1E4' },
+  { id:'acougue',    nome:'Açougue e Peixe',  emoji:'🐟', tint:'#FBE6E2' },
+  { id:'padaria',    nome:'Padaria',          emoji:'🥖', tint:'#F6ECD8' },
+  { id:'laticinios', nome:'Laticínios',       emoji:'🧀', tint:'#FBF3D9' },
+  { id:'mercearia',  nome:'Mercearia',        emoji:'🛒', tint:'#EFE8DD' },
+  { id:'bebidas',    nome:'Bebidas',          emoji:'🧃', tint:'#E2EEF6' },
+  { id:'limpeza',    nome:'Limpeza',          emoji:'🧽', tint:'#DFF1EF' },
+  { id:'higiene',    nome:'Higiene',          emoji:'🧴', tint:'#ECE6F5' },
+  { id:'outros',     nome:'Outros',           emoji:'📦', tint:'#ECECE8' },
+];
+const catById = Object.fromEntries(CATEGORIAS.map(c=>[c.id,c]));
+
+/* ---------- Estado ---------- */
+let itens = [];
+let historico = [];
+let usuario = null;
+let nomeUsuario = '';
+let unsubItens = null, unsubHist = null;
+let editandoId = null;
+
+const $ = s => document.querySelector(s);
+
+/* ---------- Helpers ---------- */
+function nomeDe(email){
+  if(!email) return 'alguém';
+  const p = email.split('@')[0].replace(/[._]/g,' ');
+  return p.charAt(0).toUpperCase()+p.slice(1);
+}
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function fmtData(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const hoje = new Date(); const ontem = new Date(); ontem.setDate(hoje.getDate()-1);
+  const sameDay = (a,b)=>a.toDateString()===b.toDateString();
+  if(sameDay(d,hoje)) return 'Hoje';
+  if(sameDay(d,ontem)) return 'Ontem';
+  return d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+}
+
+/* ---------- Selects de categoria ---------- */
+function preencherSelects(){
+  const opts = CATEGORIAS.map(c=>`<option value="${c.id}">${c.emoji}  ${c.nome}</option>`).join('');
+  $('#novoCat').innerHTML = opts;
+  $('#edCat').innerHTML = opts;
+  $('#novoCat').value = 'outros';
+}
+
+/* ================= AUTH ================= */
+$('#formLogin').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const btn = $('#btnEntrar'); const erro = $('#loginErro');
+  erro.textContent=''; btn.disabled=true; btn.textContent='Entrando…';
+  try{
+    await signInWithEmailAndPassword(auth, $('#email').value.trim(), $('#senha').value);
+  }catch(err){
+    const map = {
+      'auth/invalid-email':'E-mail inválido.',
+      'auth/user-not-found':'Não encontrei essa conta.',
+      'auth/wrong-password':'Senha incorreta.',
+      'auth/invalid-credential':'E-mail ou senha incorretos.',
+      'auth/too-many-requests':'Muitas tentativas. Espere um pouco.',
+      'auth/network-request-failed':'Sem conexão. Verifique a internet.'
+    };
+    erro.textContent = map[err.code] || 'Não foi possível entrar.';
+  }finally{
+    btn.disabled=false; btn.textContent='Entrar';
+  }
+});
+
+$('#btnSair').addEventListener('click', ()=> signOut(auth));
+
+onAuthStateChanged(auth, (user)=>{
+  $('#boot').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  usuario = user;
+  if(user){
+    nomeUsuario = user.displayName || nomeDe(user.email);
+    $('#who').textContent = 'Conectado como '+nomeUsuario;
+    $('#telaLogin').classList.add('hidden');
+    $('#telaApp').classList.remove('hidden');
+    $('#senha').value='';
+    ouvirDados();
+  }else{
+    $('#telaApp').classList.add('hidden');
+    $('#telaLogin').classList.remove('hidden');
+    if(unsubItens){unsubItens();unsubItens=null;}
+    if(unsubHist){unsubHist();unsubHist=null;}
+    itens=[]; historico=[];
+  }
+});
+
+/* ================= FIRESTORE ================= */
+function ouvirDados(){
+  if(unsubItens) unsubItens();
+  unsubItens = onSnapshot(
+    query(collection(db,'itens'), orderBy('criadoEm','asc')),
+    (snap)=>{ itens = snap.docs.map(d=>({...d.data(), id:d.id})); renderLista(); },
+    (err)=>{ console.error(err); toast('Erro ao carregar a lista.'); }
+  );
+  if(unsubHist) unsubHist();
+  unsubHist = onSnapshot(
+    query(collection(db,'historico'), orderBy('finalizadoEm','desc')),
+    (snap)=>{ historico = snap.docs.map(d=>({...d.data(), id:d.id})); renderHist(); },
+    (err)=>{ console.error(err); }
+  );
+}
+
+async function adicionarItem(){
+  const nome = $('#novoNome').value.trim();
+  if(!nome) { $('#novoNome').focus(); return; }
+  const cat = $('#novoCat').value;
+  const qtd = $('#novoQtd').value.trim();
+  $('#novoNome').value=''; $('#novoQtd').value='';
+  $('#novoNome').focus();
+  try{
+    await addDoc(collection(db,'itens'), {
+      nome, categoria:cat, quantidade:qtd, comprado:false,
+      criadoPor:nomeUsuario, criadoEm:serverTimestamp()
+    });
+  }catch(err){ console.error(err); toast('Não consegui adicionar.'); }
+}
+$('#btnAdd').addEventListener('click', adicionarItem);
+$('#novoNome').addEventListener('keydown', e=>{ if(e.key==='Enter') adicionarItem(); });
+$('#novoQtd').addEventListener('keydown', e=>{ if(e.key==='Enter') adicionarItem(); });
+
+async function alternarComprado(it){
+  try{
+    await updateDoc(doc(db,'itens',it.id), {
+      comprado: !it.comprado,
+      compradoPor: !it.comprado ? nomeUsuario : '',
+      compradoEm: !it.comprado ? serverTimestamp() : null
+    });
+  }catch(err){ console.error(err); toast('Não consegui atualizar.'); }
+}
+
+async function finalizarCompra(){
+  const comprados = itens.filter(i=>i.comprado);
+  if(!comprados.length) return;
+  if(!confirm(`Guardar ${comprados.length} ${comprados.length===1?'item':'itens'} no histórico e limpar do carrinho?`)) return;
+  try{
+    const batch = writeBatch(db);
+    const ref = doc(collection(db,'historico'));
+    batch.set(ref, {
+      finalizadoEm: serverTimestamp(),
+      finalizadoPor: nomeUsuario,
+      total: comprados.length,
+      itens: comprados.map(i=>({nome:i.nome, categoria:i.categoria, quantidade:i.quantidade||''}))
+    });
+    comprados.forEach(i=> batch.delete(doc(db,'itens',i.id)));
+    await batch.commit();
+    toast('Compra guardada no histórico.');
+  }catch(err){ console.error(err); toast('Não consegui finalizar.'); }
+}
+window.finalizarCompra = finalizarCompra;
+
+/* ================= EDIÇÃO ================= */
+function abrirSheet(it){
+  editandoId = it.id;
+  $('#edNome').value = it.nome;
+  $('#edQtd').value = it.quantidade||'';
+  $('#edCat').value = it.categoria||'outros';
+  $('#overlay').classList.add('open');
+}
+function fecharSheet(){ $('#overlay').classList.remove('open'); editandoId=null; }
+window.fecharSheet = fecharSheet;
+
+$('#edSalvar').addEventListener('click', async ()=>{
+  if(!editandoId) return;
+  const nome = $('#edNome').value.trim();
+  if(!nome){ $('#edNome').focus(); return; }
+  try{
+    await updateDoc(doc(db,'itens',editandoId), {
+      nome, quantidade:$('#edQtd').value.trim(), categoria:$('#edCat').value
+    });
+    fecharSheet();
+  }catch(err){ console.error(err); toast('Não consegui salvar.'); }
+});
+$('#edExcluir').addEventListener('click', async ()=>{
+  if(!editandoId) return;
+  try{ await deleteDoc(doc(db,'itens',editandoId)); fecharSheet(); }
+  catch(err){ console.error(err); toast('Não consegui excluir.'); }
+});
+
+/* ================= RENDER LISTA ================= */
+function renderLista(){
+  const wrap = $('#listaWrap');
+  const aComprar = itens.filter(i=>!i.comprado);
+  const noCarrinho = itens.filter(i=>i.comprado);
+
+  // badge
+  const badge = $('#badgeLista');
+  if(aComprar.length){ badge.textContent=aComprar.length; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+
+  if(!itens.length){
+    wrap.innerHTML = `<div class="empty"><div class="big">🧺</div>
+      <h3>A lista está vazia</h3>
+      <p>Adicione o que falta lá em casa. O que você colocar aparece no celular dela na hora.</p></div>`;
+    return;
+  }
+
+  let html = '';
+  // agrupado por categoria, na ordem do mercado
+  for(const c of CATEGORIAS){
+    const grupo = aComprar.filter(i=>i.categoria===c.id);
+    if(!grupo.length) continue;
+    html += `<div class="cat">
+      <div class="cat-head">
+        <span class="chip" style="background:${c.tint}">${c.emoji}</span>
+        <h2>${c.nome}</h2><span class="n">${grupo.length}</span>
+      </div>`;
+    for(const it of grupo) html += itemHTML(it,false);
+    html += `</div>`;
+  }
+
+  // carrinho
+  if(noCarrinho.length){
+    html += `<div class="cart">
+      <div class="cat-head"><span class="chip" style="background:var(--green-tint)">🛒</span>
+      <h2>No carrinho</h2><span class="n">${noCarrinho.length}</span></div>`;
+    for(const it of noCarrinho) html += itemHTML(it,true);
+    html += `<button class="btn-finalizar" onclick="finalizarCompra()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Finalizar compra (${noCarrinho.length})</button></div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+function itemHTML(it,done){
+  const c = catById[it.categoria] || catById.outros;
+  const meta = [it.quantidade, done && it.compradoPor ? 'por '+it.compradoPor : '']
+    .filter(Boolean).join(' · ');
+  return `<div class="item ${done?'done':''}" data-id="${it.id}">
+    <button class="check" aria-label="Marcar comprado" data-act="check">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="body" data-act="edit">
+      <div class="nome">${escapeHtml(it.nome)}</div>
+      ${meta?`<div class="meta">${escapeHtml(meta)}</div>`:`<div class="meta">${c.nome}</div>`}
+    </div>
+    <button class="edit" aria-label="Editar" data-act="edit">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+  </div>`;
+}
+
+// delegação de clique nos itens
+$('#listaWrap').addEventListener('click', (e)=>{
+  const row = e.target.closest('.item'); if(!row) return;
+  const it = itens.find(i=>i.id===row.dataset.id); if(!it) return;
+  const act = e.target.closest('[data-act]')?.dataset.act;
+  if(act==='check') alternarComprado(it);
+  else if(act==='edit') abrirSheet(it);
+});
+
+/* ================= RENDER HISTÓRICO ================= */
+function renderHist(){
+  const wrap = $('#histWrap');
+  if(!historico.length){
+    wrap.innerHTML = `<div class="empty"><div class="big">📒</div>
+      <h3>Sem compras ainda</h3>
+      <p>Quando você finalizar uma compra, ela fica guardada aqui pra consultar depois.</p></div>`;
+    return;
+  }
+  let html='';
+  for(const t of historico){
+    const itensHtml = (t.itens||[]).map(i=>{
+      const c = catById[i.categoria]||catById.outros;
+      return `<li><span>${c.emoji} ${escapeHtml(i.nome)}</span><span class="q">${escapeHtml(i.quantidade||'')}</span></li>`;
+    }).join('');
+    html += `<div class="trip">
+      <div class="trip-head" data-id="${t.id}">
+        <div><div class="data">${fmtData(t.finalizadoEm)}</div>
+        <div class="by">${t.total||0} ${ (t.total||0)===1?'item':'itens'} · ${escapeHtml(t.finalizadoPor||'')}</div></div>
+        <span class="qt">ver</span>
+      </div>
+      <ul class="hidden">${itensHtml}</ul>
+    </div>`;
+  }
+  wrap.innerHTML = html;
+}
+$('#histWrap').addEventListener('click',(e)=>{
+  const head = e.target.closest('.trip-head'); if(!head) return;
+  const ul = head.parentElement.querySelector('ul');
+  ul.classList.toggle('hidden');
+  head.querySelector('.qt').textContent = ul.classList.contains('hidden') ? 'ver' : 'ocultar';
+});
+
+/* ================= ABAS ================= */
+window.trocarAba = (qual)=>{
+  const lista = qual==='lista';
+  $('#abaLista').classList.toggle('hidden', !lista);
+  $('#abaHist').classList.toggle('hidden', lista);
+  $('#tabLista').classList.toggle('on', lista);
+  $('#tabHist').classList.toggle('on', !lista);
+};
+
+/* ---------- util ---------- */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+preencherSelects();
+</script>
+</body>
+</html>
