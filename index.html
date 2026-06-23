@@ -99,9 +99,18 @@
   .item .edit{flex:0 0 auto;color:var(--ink-soft);padding:6px;border-radius:8px}
   .item .edit svg{width:18px;height:18px;display:block}
 
+  /* ===== PREÇO NO ITEM ===== */
+  .item .preco{flex:0 0 92px;display:flex;align-items:center;gap:3px;border:1.5px solid var(--line);border-radius:10px;padding:7px 9px;background:#fff}
+  .item .preco:focus-within{border-color:var(--green)}
+  .item .preco .rs{font-size:13px;color:var(--ink-soft);font-weight:600}
+  .item .preco input{width:100%;border:none;outline:none;font-size:15px;font-weight:700;text-align:right;background:transparent;padding:0;color:var(--ink)}
+
   /* ===== CART ===== */
   .cart{margin-top:6px;border-top:1px dashed var(--line);padding-top:16px}
-  .btn-finalizar{width:100%;background:var(--green);color:#fff;font-weight:700;font-size:16px;padding:15px;border-radius:14px;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow)}
+  .cart-total{display:flex;justify-content:space-between;align-items:baseline;margin:14px 4px 0}
+  .cart-total .lbl{font-size:12px;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .cart-total .val{font-family:'Bricolage Grotesque';font-weight:700;font-size:24px}
+  .btn-finalizar{width:100%;background:var(--green);color:#fff;font-weight:700;font-size:16px;padding:15px;border-radius:14px;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow)}
   .btn-finalizar:active{background:var(--green-deep)}
 
   /* ===== EMPTY ===== */
@@ -111,14 +120,35 @@
   .empty p{font-size:14.5px;max-width:30ch;margin:0 auto}
 
   /* ===== HISTÓRICO ===== */
+  .resumo{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+  .resumo h2{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:13px}
+  .resumo .stats{display:flex;gap:12px;margin-bottom:16px}
+  .resumo .stat{flex:1}
+  .resumo .stat .n{font-family:'Bricolage Grotesque';font-weight:700;font-size:21px;line-height:1.1}
+  .resumo .stat .l{font-size:11px;color:var(--ink-soft);font-weight:600;margin-top:2px}
+  .chart{display:flex;align-items:flex-end;gap:7px;height:108px}
+  .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+  .chart .bar-wrap{width:100%;height:74px;display:flex;align-items:flex-end;justify-content:center}
+  .chart .bar{width:64%;max-width:28px;background:var(--green-tint);border:1.5px solid var(--green);border-radius:6px 6px 0 0;min-height:4px}
+  .chart .col.max .bar{background:var(--green)}
+  .chart .v{font-size:10.5px;font-weight:700;color:var(--ink)}
+  .chart .d{font-size:9.5px;color:var(--ink-soft);white-space:nowrap}
+  .hint{font-size:13px;color:var(--ink-soft);line-height:1.4}
+
   .trip{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 15px;margin-bottom:12px}
-  .trip-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;cursor:pointer}
+  .trip-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer}
   .trip-head .data{font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;text-transform:capitalize}
-  .trip-head .qt{font-size:12.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap}
-  .trip .by{font-size:12px;color:var(--ink-soft);margin-top:2px}
-  .trip ul{list-style:none;margin-top:11px;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+  .trip-head .by{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .trip-head .dir{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;white-space:nowrap}
+  .trip-head .total{font-family:'Bricolage Grotesque';font-weight:700;font-size:18px}
+  .var{font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px}
+  .var.up{color:#A23A2A;background:#FBE6E2}
+  .var.down{color:#1F7A4D;background:#E7F1E4}
+  .var.flat{color:var(--ink-soft);background:#ECECE8}
+  .trip ul{list-style:none;margin-top:11px;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:7px}
   .trip li{display:flex;justify-content:space-between;gap:10px;font-size:14px}
-  .trip li .q{color:var(--ink-soft)}
+  .trip li .nm .q{color:var(--ink-soft);font-weight:400}
+  .trip li .p{color:var(--ink);font-weight:600;white-space:nowrap}
 
   /* ===== SHEET (edit) ===== */
   .overlay{position:fixed;inset:0;background:rgba(35,32,27,.4);z-index:40;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -220,6 +250,7 @@
     <h3>Editar item</h3>
     <div class="field"><input id="edNome" placeholder="Nome"></div>
     <div class="field"><input id="edQtd" placeholder="Quantidade (opcional)"></div>
+    <div class="field"><input id="edPreco" placeholder="Preço (ex: 8,90)" inputmode="decimal"></div>
     <div class="field"><select id="edCat"></select></div>
     <div class="acoes">
       <button class="excluir" id="edExcluir">Excluir</button>
@@ -283,6 +314,21 @@ function nomeDe(email){
 function toast(msg){
   const t = $('#toast'); t.textContent = msg; t.classList.add('show');
   clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function parsePreco(v){
+  if(v==null) return 0;
+  let s = String(v).replace(/[^\d,.-]/g,'').trim();
+  if(!s) return 0;
+  if(s.indexOf(',')>-1) s = s.replace(/\./g,'').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+function brl(n){ return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function precoCampo(n){ return n ? Number(n).toFixed(2).replace('.',',') : ''; }
+function fmtCurto(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
 }
 function fmtData(ts){
   if(!ts) return '';
@@ -393,19 +439,29 @@ async function alternarComprado(it){
 async function finalizarCompra(){
   const comprados = itens.filter(i=>i.comprado);
   if(!comprados.length) return;
-  if(!confirm(`Guardar ${comprados.length} ${comprados.length===1?'item':'itens'} no histórico e limpar do carrinho?`)) return;
+  // captura o preço mais recente direto dos campos do carrinho
+  const precoDe = (id)=>{
+    const inp = document.querySelector(`#listaWrap .item[data-id="${id}"] .preco input`);
+    return inp ? parsePreco(inp.value) : 0;
+  };
+  const dados = comprados.map(i=>({
+    nome:i.nome, categoria:i.categoria, quantidade:i.quantidade||'', preco: precoDe(i.id) || i.preco || 0
+  }));
+  const total = dados.reduce((s,i)=>s+(i.preco||0),0);
+  if(!confirm(`Guardar ${comprados.length} ${comprados.length===1?'item':'itens'} (${brl(total)}) no histórico e limpar o carrinho?`)) return;
   try{
     const batch = writeBatch(db);
     const ref = doc(collection(db,'historico'));
     batch.set(ref, {
       finalizadoEm: serverTimestamp(),
       finalizadoPor: nomeUsuario,
-      total: comprados.length,
-      itens: comprados.map(i=>({nome:i.nome, categoria:i.categoria, quantidade:i.quantidade||''}))
+      qtdItens: comprados.length,
+      valorTotal: total,
+      itens: dados
     });
     comprados.forEach(i=> batch.delete(doc(db,'itens',i.id)));
     await batch.commit();
-    toast('Compra guardada no histórico.');
+    toast('Compra guardada: '+brl(total));
   }catch(err){ console.error(err); toast('Não consegui finalizar.'); }
 }
 window.finalizarCompra = finalizarCompra;
@@ -415,6 +471,7 @@ function abrirSheet(it){
   editandoId = it.id;
   $('#edNome').value = it.nome;
   $('#edQtd').value = it.quantidade||'';
+  $('#edPreco').value = precoCampo(it.preco);
   $('#edCat').value = it.categoria||'outros';
   $('#overlay').classList.add('open');
 }
@@ -427,7 +484,7 @@ $('#edSalvar').addEventListener('click', async ()=>{
   if(!nome){ $('#edNome').focus(); return; }
   try{
     await updateDoc(doc(db,'itens',editandoId), {
-      nome, quantidade:$('#edQtd').value.trim(), categoria:$('#edCat').value
+      nome, quantidade:$('#edQtd').value.trim(), preco:parsePreco($('#edPreco').value), categoria:$('#edCat').value
     });
     fecharSheet();
   }catch(err){ console.error(err); toast('Não consegui salvar.'); }
@@ -472,21 +529,35 @@ function renderLista(){
 
   // carrinho
   if(noCarrinho.length){
+    const somaIni = noCarrinho.reduce((s,i)=>s+(i.preco||0),0);
     html += `<div class="cart">
       <div class="cat-head"><span class="chip" style="background:var(--green-tint)">🛒</span>
       <h2>No carrinho</h2><span class="n">${noCarrinho.length}</span></div>`;
     for(const it of noCarrinho) html += itemHTML(it,true);
-    html += `<button class="btn-finalizar" onclick="finalizarCompra()">
+    html += `<div class="cart-total"><span class="lbl">Total da compra</span><span class="val" id="cartTotalVal">${brl(somaIni)}</span></div>
+      <button class="btn-finalizar" onclick="finalizarCompra()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Finalizar compra (${noCarrinho.length})</button></div>`;
+      <span id="cartBtnTxt">Finalizar compra (${noCarrinho.length} ${noCarrinho.length===1?'item':'itens'})</span></button></div>`;
   }
   wrap.innerHTML = html;
 }
 
+function recalcCarrinho(){
+  let soma=0, n=0;
+  document.querySelectorAll('#listaWrap .item.done .preco input').forEach(inp=>{ soma+=parsePreco(inp.value); n++; });
+  const v=$('#cartTotalVal'); if(v) v.textContent=brl(soma);
+  const b=$('#cartBtnTxt'); if(b) b.textContent=`Finalizar compra (${n} ${n===1?'item':'itens'})`;
+}
+
 function itemHTML(it,done){
   const c = catById[it.categoria] || catById.outros;
-  const meta = [it.quantidade, done && it.compradoPor ? 'por '+it.compradoPor : '']
-    .filter(Boolean).join(' · ');
+  const partes = [it.quantidade];
+  if(done && it.compradoPor) partes.push('por '+it.compradoPor);
+  if(!done && it.preco) partes.push(brl(it.preco));
+  const meta = partes.filter(Boolean).join(' · ');
+  const precoInput = done
+    ? `<div class="preco"><span class="rs">R$</span><input inputmode="decimal" placeholder="0,00" value="${precoCampo(it.preco)}" aria-label="Preço do item"></div>`
+    : '';
   return `<div class="item ${done?'done':''}" data-id="${it.id}">
     <button class="check" aria-label="Marcar comprado" data-act="check">
       <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -495,6 +566,7 @@ function itemHTML(it,done){
       <div class="nome">${escapeHtml(it.nome)}</div>
       ${meta?`<div class="meta">${escapeHtml(meta)}</div>`:`<div class="meta">${c.nome}</div>`}
     </div>
+    ${precoInput}
     <button class="edit" aria-label="Editar" data-act="edit">
       <svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
     </button>
@@ -503,11 +575,25 @@ function itemHTML(it,done){
 
 // delegação de clique nos itens
 $('#listaWrap').addEventListener('click', (e)=>{
+  if(e.target.closest('.preco')) return; // não dispara ao tocar no campo de preço
   const row = e.target.closest('.item'); if(!row) return;
   const it = itens.find(i=>i.id===row.dataset.id); if(!it) return;
   const act = e.target.closest('[data-act]')?.dataset.act;
   if(act==='check') alternarComprado(it);
   else if(act==='edit') abrirSheet(it);
+});
+// preço: recalcula o total ao digitar; salva ao sair do campo
+$('#listaWrap').addEventListener('input', (e)=>{
+  if(e.target.matches('.preco input')) recalcCarrinho();
+});
+$('#listaWrap').addEventListener('focusout', (e)=>{
+  if(!e.target.matches('.preco input')) return;
+  const row = e.target.closest('.item'); if(!row) return;
+  const it = itens.find(i=>i.id===row.dataset.id); if(!it) return;
+  const novo = parsePreco(e.target.value);
+  if(novo !== (it.preco||0)){
+    updateDoc(doc(db,'itens',it.id), {preco:novo}).catch(err=>console.error(err));
+  }
 });
 
 /* ================= RENDER HISTÓRICO ================= */
@@ -519,28 +605,72 @@ function renderHist(){
       <p>Quando você finalizar uma compra, ela fica guardada aqui pra consultar depois.</p></div>`;
     return;
   }
+  const valor = t => Number(t.valorTotal||0);
+  const qtd = t => (t.qtdItens!=null ? t.qtdItens : (t.total!=null ? t.total : (t.itens?t.itens.length:0)));
+  const hasValores = historico.some(t=>valor(t)>0);
+
   let html='';
-  for(const t of historico){
-    const itensHtml = (t.itens||[]).map(i=>{
-      const c = catById[i.categoria]||catById.outros;
-      return `<li><span>${c.emoji} ${escapeHtml(i.nome)}</span><span class="q">${escapeHtml(i.quantidade||'')}</span></li>`;
+
+  if(hasValores){
+    const ult = valor(historico[0]);
+    const comVal = historico.filter(t=>valor(t)>0);
+    const media = comVal.reduce((s,t)=>s+valor(t),0)/comVal.length;
+    const maior = Math.max(...comVal.map(valor));
+    const serie = historico.slice(0,8).reverse();      // mais antigas à esquerda
+    const max = Math.max(...serie.map(valor), 1);
+    const barras = serie.map(t=>{
+      const v=valor(t); const h=Math.max(4, Math.round(v/max*74));
+      return `<div class="col ${v===maior&&v>0?'max':''}">
+        <div class="v">${v?('R$'+Math.round(v)):'—'}</div>
+        <div class="bar-wrap"><div class="bar" style="height:${h}px"></div></div>
+        <div class="d">${fmtCurto(t.finalizadoEm)}</div></div>`;
     }).join('');
+    html += `<div class="resumo">
+      <h2>Comparativo de gastos</h2>
+      <div class="stats">
+        <div class="stat"><div class="n">${brl(ult)}</div><div class="l">Última compra</div></div>
+        <div class="stat"><div class="n">${brl(media)}</div><div class="l">Média</div></div>
+        <div class="stat"><div class="n">${brl(maior)}</div><div class="l">Maior</div></div>
+      </div>
+      <div class="chart">${barras}</div>
+    </div>`;
+  }else{
+    html += `<div class="resumo"><h2>Comparativo de gastos</h2>
+      <p class="hint">Coloque o preço dos itens no carrinho antes de finalizar a compra. A partir daí o comparativo de gastos aparece aqui.</p></div>`;
+  }
+
+  historico.forEach((t,i)=>{
+    const v = valor(t);
+    const ant = historico[i+1] ? valor(historico[i+1]) : null;
+    let varHtml='';
+    if(v>0 && ant!=null && ant>0){
+      const d = v-ant; const pct = Math.round(Math.abs(d)/ant*100);
+      if(Math.abs(d)<0.005) varHtml = `<span class="var flat">igual à anterior</span>`;
+      else if(d>0) varHtml = `<span class="var up">▲ ${brl(d)} · ${pct}%</span>`;
+      else varHtml = `<span class="var down">▼ ${brl(Math.abs(d))} · ${pct}%</span>`;
+    }
+    const itensHtml = (t.itens||[]).map(it=>{
+      const c = catById[it.categoria]||catById.outros;
+      const q = it.quantidade ? ` <span class="q">${escapeHtml(it.quantidade)}</span>` : '';
+      return `<li><span class="nm">${c.emoji} ${escapeHtml(it.nome)}${q}</span><span class="p">${it.preco?brl(it.preco):'—'}</span></li>`;
+    }).join('');
+    const n = qtd(t);
     html += `<div class="trip">
       <div class="trip-head" data-id="${t.id}">
-        <div><div class="data">${fmtData(t.finalizadoEm)}</div>
-        <div class="by">${t.total||0} ${ (t.total||0)===1?'item':'itens'} · ${escapeHtml(t.finalizadoPor||'')}</div></div>
-        <span class="qt">ver</span>
+        <div class="esq"><div class="data">${fmtData(t.finalizadoEm)}</div>
+        <div class="by">${n} ${n===1?'item':'itens'} · ${escapeHtml(t.finalizadoPor||'')}</div></div>
+        <div class="dir">${v?`<div class="total">${brl(v)}</div>`:''}${varHtml}</div>
       </div>
       <ul class="hidden">${itensHtml}</ul>
     </div>`;
-  }
+  });
+
   wrap.innerHTML = html;
 }
 $('#histWrap').addEventListener('click',(e)=>{
   const head = e.target.closest('.trip-head'); if(!head) return;
   const ul = head.parentElement.querySelector('ul');
-  ul.classList.toggle('hidden');
-  head.querySelector('.qt').textContent = ul.classList.contains('hidden') ? 'ver' : 'ocultar';
+  if(ul) ul.classList.toggle('hidden');
 });
 
 /* ================= ABAS ================= */
