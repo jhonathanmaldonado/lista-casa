@@ -87,23 +87,26 @@
   .cat-head h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
   .cat-head .n{font-size:12px;color:var(--ink-soft);font-weight:600}
 
-  .item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:7px;box-shadow:0 1px 2px rgba(35,32,27,.03)}
-  .check{flex:0 0 24px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;transition:.15s}
+  .item{display:flex;align-items:flex-start;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:7px;box-shadow:0 1px 2px rgba(35,32,27,.03)}
+  .check{flex:0 0 24px;width:24px;height:24px;margin-top:2px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;transition:.15s}
   .check svg{width:14px;height:14px;opacity:0;transform:scale(.5);transition:.15s}
   .item.done .check{background:var(--green);border-color:var(--green)}
   .item.done .check svg{opacity:1;transform:scale(1)}
+  .item .main{flex:1;min-width:0}
+  .item .toprow{display:flex;align-items:flex-start;gap:8px}
   .item .body{flex:1;min-width:0;text-align:left}
   .item .nome{font-weight:600;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .item .meta{font-size:12.5px;color:var(--ink-soft)}
+  .item .meta{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .item.done .nome{text-decoration:line-through;color:var(--ink-soft)}
-  .item .edit{flex:0 0 auto;color:var(--ink-soft);padding:6px;border-radius:8px}
+  .item .edit{flex:0 0 auto;color:var(--ink-soft);padding:4px;border-radius:8px;margin-top:-2px}
   .item .edit svg{width:18px;height:18px;display:block}
 
-  /* ===== PREÇO NO ITEM ===== */
-  .item .preco{flex:0 0 92px;display:flex;align-items:center;gap:3px;border:1.5px solid var(--line);border-radius:10px;padding:7px 9px;background:#fff}
-  .item .preco:focus-within{border-color:var(--green)}
-  .item .preco .rs{font-size:13px;color:var(--ink-soft);font-weight:600}
-  .item .preco input{width:100%;border:none;outline:none;font-size:15px;font-weight:700;text-align:right;background:transparent;padding:0;color:var(--ink)}
+  /* campos numéricos inline (qtd e valor) */
+  .campos{display:flex;gap:8px;margin-top:9px}
+  .campo{flex:1;display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff}
+  .campo:focus-within{border-color:var(--green)}
+  .campo .lab{font-size:12px;color:var(--ink-soft);font-weight:700;flex:0 0 auto}
+  .campo input{width:100%;min-width:0;border:none;outline:none;font-size:15px;font-weight:700;text-align:right;background:transparent;padding:0;color:var(--ink)}
 
   /* ===== CART ===== */
   .cart{margin-top:6px;border-top:1px dashed var(--line);padding-top:16px}
@@ -227,7 +230,6 @@
           <input class="nome" id="novoNome" placeholder="O que falta? Ex: Leite" enterkeyhint="done">
           <div class="linha2">
             <select id="novoCat"></select>
-            <input class="qtd" id="novoQtd" placeholder="Qtd (opcional)" enterkeyhint="done">
             <button class="btn-add" id="btnAdd" aria-label="Adicionar item">
               <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
             </button>
@@ -249,8 +251,7 @@
   <div class="sheet" id="sheet">
     <h3>Editar item</h3>
     <div class="field"><input id="edNome" placeholder="Nome"></div>
-    <div class="field"><input id="edQtd" placeholder="Quantidade (opcional)"></div>
-    <div class="field"><input id="edPreco" placeholder="Preço (ex: 8,90)" inputmode="decimal"></div>
+    <div class="field"><input id="edMarca" placeholder="Marca (opcional)"></div>
     <div class="field"><select id="edCat"></select></div>
     <div class="acoes">
       <button class="excluir" id="edExcluir">Excluir</button>
@@ -325,6 +326,13 @@ function parsePreco(v){
 }
 function brl(n){ return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 function precoCampo(n){ return n ? Number(n).toFixed(2).replace('.',',') : ''; }
+function numCampo(n){ if(!n) return ''; return Number.isInteger(Number(n)) ? String(n) : String(n).replace('.',','); }
+function sanitizarNum(el){
+  let v = el.value.replace(/[^\d,]/g,'');      // só dígitos e vírgula
+  const i = v.indexOf(',');
+  if(i>-1) v = v.slice(0,i+1) + v.slice(i+1).replace(/,/g,''); // uma vírgula só
+  el.value = v;
+}
 function fmtCurto(ts){
   if(!ts) return '';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -412,19 +420,17 @@ async function adicionarItem(){
   const nome = $('#novoNome').value.trim();
   if(!nome) { $('#novoNome').focus(); return; }
   const cat = $('#novoCat').value;
-  const qtd = $('#novoQtd').value.trim();
-  $('#novoNome').value=''; $('#novoQtd').value='';
+  $('#novoNome').value='';
   $('#novoNome').focus();
   try{
     await addDoc(collection(db,'itens'), {
-      nome, categoria:cat, quantidade:qtd, comprado:false,
+      nome, marca:'', categoria:cat, quantidade:0, preco:0, comprado:false,
       criadoPor:nomeUsuario, criadoEm:serverTimestamp()
     });
   }catch(err){ console.error(err); toast('Não consegui adicionar.'); }
 }
 $('#btnAdd').addEventListener('click', adicionarItem);
 $('#novoNome').addEventListener('keydown', e=>{ if(e.key==='Enter') adicionarItem(); });
-$('#novoQtd').addEventListener('keydown', e=>{ if(e.key==='Enter') adicionarItem(); });
 
 async function alternarComprado(it){
   try{
@@ -439,13 +445,14 @@ async function alternarComprado(it){
 async function finalizarCompra(){
   const comprados = itens.filter(i=>i.comprado);
   if(!comprados.length) return;
-  // captura o preço mais recente direto dos campos do carrinho
-  const precoDe = (id)=>{
-    const inp = document.querySelector(`#listaWrap .item[data-id="${id}"] .preco input`);
+  const campoVal = (id, classe)=>{
+    const inp = document.querySelector(`#listaWrap .item[data-id="${id}"] .${classe}`);
     return inp ? parsePreco(inp.value) : 0;
   };
   const dados = comprados.map(i=>({
-    nome:i.nome, categoria:i.categoria, quantidade:i.quantidade||'', preco: precoDe(i.id) || i.preco || 0
+    nome:i.nome, marca:i.marca||'', categoria:i.categoria,
+    quantidade: campoVal(i.id,'qtd-input') || i.quantidade || 0,
+    preco: campoVal(i.id,'preco-input') || i.preco || 0
   }));
   const total = dados.reduce((s,i)=>s+(i.preco||0),0);
   if(!confirm(`Guardar ${comprados.length} ${comprados.length===1?'item':'itens'} (${brl(total)}) no histórico e limpar o carrinho?`)) return;
@@ -470,8 +477,7 @@ window.finalizarCompra = finalizarCompra;
 function abrirSheet(it){
   editandoId = it.id;
   $('#edNome').value = it.nome;
-  $('#edQtd').value = it.quantidade||'';
-  $('#edPreco').value = precoCampo(it.preco);
+  $('#edMarca').value = it.marca||'';
   $('#edCat').value = it.categoria||'outros';
   $('#overlay').classList.add('open');
 }
@@ -484,7 +490,7 @@ $('#edSalvar').addEventListener('click', async ()=>{
   if(!nome){ $('#edNome').focus(); return; }
   try{
     await updateDoc(doc(db,'itens',editandoId), {
-      nome, quantidade:$('#edQtd').value.trim(), preco:parsePreco($('#edPreco').value), categoria:$('#edCat').value
+      nome, marca:$('#edMarca').value.trim(), categoria:$('#edCat').value
     });
     fecharSheet();
   }catch(err){ console.error(err); toast('Não consegui salvar.'); }
@@ -544,55 +550,66 @@ function renderLista(){
 
 function recalcCarrinho(){
   let soma=0, n=0;
-  document.querySelectorAll('#listaWrap .item.done .preco input').forEach(inp=>{ soma+=parsePreco(inp.value); n++; });
+  document.querySelectorAll('#listaWrap .item.done').forEach(row=>{
+    const p = row.querySelector('.preco-input');
+    soma += parsePreco(p ? p.value : 0); n++;
+  });
   const v=$('#cartTotalVal'); if(v) v.textContent=brl(soma);
   const b=$('#cartBtnTxt'); if(b) b.textContent=`Finalizar compra (${n} ${n===1?'item':'itens'})`;
 }
 
 function itemHTML(it,done){
   const c = catById[it.categoria] || catById.outros;
-  const partes = [it.quantidade];
-  if(done && it.compradoPor) partes.push('por '+it.compradoPor);
-  if(!done && it.preco) partes.push(brl(it.preco));
-  const meta = partes.filter(Boolean).join(' · ');
-  const precoInput = done
-    ? `<div class="preco"><span class="rs">R$</span><input inputmode="decimal" placeholder="0,00" value="${precoCampo(it.preco)}" aria-label="Preço do item"></div>`
-    : '';
+  const sub = it.marca ? escapeHtml(it.marca) : c.nome;
   return `<div class="item ${done?'done':''}" data-id="${it.id}">
     <button class="check" aria-label="Marcar comprado" data-act="check">
       <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <div class="body" data-act="edit">
-      <div class="nome">${escapeHtml(it.nome)}</div>
-      ${meta?`<div class="meta">${escapeHtml(meta)}</div>`:`<div class="meta">${c.nome}</div>`}
+    <div class="main">
+      <div class="toprow">
+        <div class="body" data-act="edit">
+          <div class="nome">${escapeHtml(it.nome)}</div>
+          <div class="meta">${sub}</div>
+        </div>
+        <button class="edit" aria-label="Editar nome, marca e categoria" data-act="edit">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="campos">
+        <label class="campo"><span class="lab">Qtd</span>
+          <input class="qtd-input" inputmode="decimal" placeholder="0" value="${numCampo(it.quantidade)}" aria-label="Quantidade"></label>
+        <label class="campo"><span class="lab">R$</span>
+          <input class="preco-input" inputmode="decimal" placeholder="0,00" value="${precoCampo(it.preco)}" aria-label="Valor"></label>
+      </div>
     </div>
-    ${precoInput}
-    <button class="edit" aria-label="Editar" data-act="edit">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-    </button>
   </div>`;
 }
 
-// delegação de clique nos itens
+// clique: marcar/editar (ignora toques nos campos numéricos)
 $('#listaWrap').addEventListener('click', (e)=>{
-  if(e.target.closest('.preco')) return; // não dispara ao tocar no campo de preço
+  if(e.target.closest('.campos')) return;
   const row = e.target.closest('.item'); if(!row) return;
   const it = itens.find(i=>i.id===row.dataset.id); if(!it) return;
   const act = e.target.closest('[data-act]')?.dataset.act;
   if(act==='check') alternarComprado(it);
   else if(act==='edit') abrirSheet(it);
 });
-// preço: recalcula o total ao digitar; salva ao sair do campo
+// campos numéricos: só números; recalcula total ao digitar; salva ao sair
 $('#listaWrap').addEventListener('input', (e)=>{
-  if(e.target.matches('.preco input')) recalcCarrinho();
+  if(e.target.matches('.qtd-input, .preco-input')){
+    sanitizarNum(e.target);
+    if(e.target.matches('.preco-input')) recalcCarrinho();
+  }
 });
 $('#listaWrap').addEventListener('focusout', (e)=>{
-  if(!e.target.matches('.preco input')) return;
-  const row = e.target.closest('.item'); if(!row) return;
+  const el = e.target;
+  if(!el.matches('.qtd-input, .preco-input')) return;
+  const row = el.closest('.item'); if(!row) return;
   const it = itens.find(i=>i.id===row.dataset.id); if(!it) return;
-  const novo = parsePreco(e.target.value);
-  if(novo !== (it.preco||0)){
-    updateDoc(doc(db,'itens',it.id), {preco:novo}).catch(err=>console.error(err));
+  const campo = el.matches('.qtd-input') ? 'quantidade' : 'preco';
+  const novo = parsePreco(el.value);
+  if(novo !== (it[campo]||0)){
+    updateDoc(doc(db,'itens',it.id), {[campo]:novo}).catch(err=>console.error(err));
   }
 });
 
@@ -651,8 +668,9 @@ function renderHist(){
     }
     const itensHtml = (t.itens||[]).map(it=>{
       const c = catById[it.categoria]||catById.outros;
-      const q = it.quantidade ? ` <span class="q">${escapeHtml(it.quantidade)}</span>` : '';
-      return `<li><span class="nm">${c.emoji} ${escapeHtml(it.nome)}${q}</span><span class="p">${it.preco?brl(it.preco):'—'}</span></li>`;
+      const q = it.quantidade ? `<span class="q"> ${numCampo(it.quantidade)}x</span>` : '';
+      const m = it.marca ? ` <span class="q">(${escapeHtml(it.marca)})</span>` : '';
+      return `<li><span class="nm">${c.emoji} ${escapeHtml(it.nome)}${m}${q}</span><span class="p">${it.preco?brl(it.preco):'—'}</span></li>`;
     }).join('');
     const n = qtd(t);
     html += `<div class="trip">
